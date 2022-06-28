@@ -1,4 +1,4 @@
-# Osa 1: tehtävät 1.1.-1.16 ja
+# Osa 1: tehtävät 1.1.-1.16
 
 1. [Kurssitiedot](https://github.com/DanielTarsalainen/fullstackopen2022/blob/master/osa1/kurssitiedot)
 2. [Unicafe](https://github.com/DanielTarsalainen/fullstackopen2022/blob/master/osa1/unicafe)
