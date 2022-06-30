@@ -2,29 +2,35 @@ import { useEffect, useState } from "react";
 import Persons from "./components/Persons";
 import AddPerson from "./components/AddPerson";
 import Filter from "./components/Filter";
+import axios from "axios";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456" },
-    { name: "Ada Lovelace", number: "39-44-5323523" },
-    { name: "Dan Abramov", number: "12-43-234345" },
-    { name: "Mary Poppendieck", number: "39-23-6423122" },
-  ]);
+  const [persons, setPersons] = useState([]);
 
   const [filtered, setFiltered] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    axios.get("http://localhost:3001/persons").then((response) => {
+      const notes = response.data;
+      setPersons(response.data);
+    });
+  }, []);
+
   const handleNameChange = (event) => {
+    event.preventDefault();
     setNewName(event.target.value);
   };
 
   const handleNumberChange = (event) => {
+    event.preventDefault();
     setNewNumber(event.target.value);
   };
 
   const handleFilterChange = (event) => {
+    event.preventDefault();
     setSearch(event.target.value);
 
     if (event.target.value !== "") {
@@ -52,20 +58,20 @@ const App = () => {
     setNewNumber("");
   };
 
-  // Own functionality: when <body> element is clicked, input field for filter is emptied.
+  // Oma toiminnallisuus: kun dokumenttia klikkaa mistä vain tyhjästä kohdasta silloin kun search-muuttujassa on merkkijono, search muuttuja tyhjennetään
   useEffect(() => {
-    let body = document.getElementById("body");
-    body.addEventListener("mouseup", onMouseClicked, true);
-  }, []);
-
-  const onMouseClicked = () => {
-    const activeField = document.activeElement;
-    if (activeField === document.body) {
-      if (activeField.children[1].id === "root") {
-        setSearch("");
+    const onMouseClicked = () => {
+      const activeField = document.activeElement;
+      if (activeField === document.body) {
+        if (activeField.children[1].id === "root") {
+          console.log("tyhjennetty");
+          setSearch("");
+        }
       }
-    }
-  };
+    };
+    let document_element = document;
+    document_element.addEventListener("mouseup", onMouseClicked, true);
+  }, []);
 
   return (
     <div id="body">
@@ -89,12 +95,5 @@ const App = () => {
     </div>
   );
 };
-
-// Komponenttien eriytys:
-
-/*
-3. kaikki henkilöt renderöivä komponentti
-4. yksittäisen henkilön renderöivä komponentti
-*/
 
 export default App;
