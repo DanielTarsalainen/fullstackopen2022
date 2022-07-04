@@ -88,25 +88,40 @@ const App = () => {
         setTimeout(() => {
           setNotificationMessage(null);
           setNotificationColor({ color: "green" });
-          filterPerson(newObject.name);
+          filterPerson(newObject);
         }, 3000);
       });
   };
 
-  const filterPerson = (x) => {
-    const filtered = persons.filter((person) => person.x !== person.x);
+  const filterPerson = (object) => {
+    const filtered = persons.filter((person) => person.name !== object.name);
     setPersons(filtered);
   };
 
   const deletePerson = (id, name, selectedPerson) => {
-    personService.deleteItem(id).then(() => {
-      setNotificationMessage(`Deleted ${name}!`);
-      filterPerson(id);
+    personService
+      .deleteItem(id)
+      .then(() => {
+        setNotificationMessage(`Deleted ${name}!`);
+        filterPerson(selectedPerson);
 
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 3000);
-    });
+        setTimeout(() => {
+          setNotificationMessage(null);
+        }, 3000);
+      })
+      .catch((error) => {
+        setNotificationColor({ color: "red" });
+
+        setNotificationMessage(
+          `Information of ${selectedPerson.name} was already been removed from server`
+        );
+
+        setTimeout(() => {
+          setNotificationMessage(null);
+          setNotificationColor({ color: "green" });
+          filterPerson(selectedPerson);
+        }, 3000);
+      });
   };
 
   const confirmUpdate = (newObject, newName) => {
@@ -116,7 +131,7 @@ const App = () => {
     if (confirm) {
       updatePerson(newObject);
     } else {
-      setNotificationMessage("Something went wrong!");
+      alert("Something went wrong!");
     }
   };
 
