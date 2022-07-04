@@ -41,13 +41,17 @@ const App = () => {
 
   const handleInputChange = (event) => {
     event.preventDefault();
-    const value = event.target.value;
-    setInput(value);
-
-    setTimeout(() => {
-      handleSearch(value.trimEnd());
-    }, "70");
+    setInput(event.target.value);
   };
+
+  // hakee vasta kun 0.7 sekunttia on kulunut kirjoittamisen aloittamisesta
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      handleSearch(input.trimEnd());
+    }, "700");
+
+    return () => clearTimeout(delayedSearch);
+  }, [input]);
 
   return (
     <div>

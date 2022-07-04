@@ -4,10 +4,10 @@ import axios from "axios";
 
 const SingleCountry = ({ country }) => {
   const languages = Object.values(country.languages);
-  const api_key = process.env.REACT_APP_API_KEY;
   const [weatherInfo, setWeatherInfo] = useState({});
 
   useEffect(() => {
+    const api_key = process.env.REACT_APP_API_KEY;
     const https = `https://api.openweathermap.org/data/2.5/weather?lat=${country.capitalInfo.latlng[0]}&lon=${country.capitalInfo.latlng[1]}&units=metric&appid=${api_key}`;
     axios.get(https).then((response) => {
       const weatherData = response.data;

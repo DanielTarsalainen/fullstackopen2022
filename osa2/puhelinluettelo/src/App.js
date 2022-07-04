@@ -1,21 +1,24 @@
 import { useEffect, useState } from "react";
-import Persons from "./components/Persons";
+import Person from "./components/Person";
 import AddPerson from "./components/AddPerson";
 import Filter from "./components/Filter";
-import axios from "axios";
+import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
-
   const [filtered, setFiltered] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState(null);
+  const [notificationColor, setNotificationColor] = useState({
+    color: "green",
+  });
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      const notes = response.data;
-      setPersons(response.data);
+    personService.getAll().then((initialNotes) => {
+      setPersons(initialNotes);
     });
   }, []);
 
@@ -45,13 +48,98 @@ const App = () => {
     setFiltered(filteredPersons);
   };
 
-  const addPerson = (event) => {
+  const addPerson = (newObject) => {
+    personService.create(newObject).then((newData) => {
+      setPersons(persons.concat(newData));
+
+      setNotificationMessage(`Added ${newObject.name}!`);
+
+      setTimeout(() => {
+        setNotificationMessage(null);
+      }, 3000);
+    });
+  };
+
+  const updatePerson = (newObject) => {
+    const person = persons.find((n) => n.name === newObject.name);
+    const changedPerson = { ...person, number: newObject.number };
+
+    personService
+      .update(person.id, changedPerson)
+      .then((returnedPerson) => {
+        setPersons(
+          persons.map((person) =>
+            person.name !== newObject.name ? person : returnedPerson
+          )
+        );
+        setNotificationMessage(`Updated ${newObject.name}!`);
+
+        setTimeout(() => {
+          setNotificationMessage(null);
+        }, 3000);
+      })
+      .catch((error) => {
+        setNotificationColor({ color: "red" });
+
+        setNotificationMessage(
+          `Information of ${newObject.name} was already been removed from server`
+        );
+
+        setTimeout(() => {
+          setNotificationMessage(null);
+          setNotificationColor({ color: "green" });
+          filterPerson(newObject.name);
+        }, 3000);
+      });
+  };
+
+  const filterPerson = (x) => {
+    const filtered = persons.filter((person) => person.x !== person.x);
+    setPersons(filtered);
+  };
+
+  const deletePerson = (id, name, selectedPerson) => {
+    personService.deleteItem(id).then(() => {
+      setNotificationMessage(`Deleted ${name}!`);
+      filterPerson(id);
+
+      setTimeout(() => {
+        setNotificationMessage(null);
+      }, 3000);
+    });
+  };
+
+  const confirmUpdate = (newObject, newName) => {
+    const confirm = window.confirm(
+      `${newName} is already added to phonebook, replace old number with a new one?`
+    );
+    if (confirm) {
+      updatePerson(newObject);
+    } else {
+      setNotificationMessage("Something went wrong!");
+    }
+  };
+
+  const confirmDelete = (selectedPerson) => {
+    const confirm = window.confirm(
+      `Do you really wanna delele '${selectedPerson.name}'?`
+    );
+
+    if (confirm) {
+      deletePerson(selectedPerson.id, selectedPerson.name, selectedPerson);
+    } else {
+      alert(`${newName} wasn't deleted!`);
+    }
+  };
+
+  const AddOrUpdatePerson = (event) => {
     event.preventDefault();
+    const newObject = { name: newName, number: newNumber };
 
     if (persons.find((element) => element.name === newName)) {
-      alert(`${newName} is already added to phonebook!`);
+      confirmUpdate(newObject, newName);
     } else {
-      setPersons(persons.concat({ name: newName, number: newNumber }));
+      addPerson(newObject);
     }
 
     setNewName("");
@@ -74,8 +162,9 @@ const App = () => {
   }, []);
 
   return (
-    <div id="body">
+    <div>
       <h2>Phonebook</h2>
+      <Notification message={notificationMessage} color={notificationColor} />
 
       <Filter onChange={handleFilterChange} value={search} />
 
@@ -86,12 +175,38 @@ const App = () => {
         number={newNumber}
         onNameChange={handleNameChange}
         onNumberChange={handleNumberChange}
-        addPerson={addPerson}
+        addOrUpdate={AddOrUpdatePerson}
       />
 
       <h2>Numbers</h2>
 
-      <Persons search={search} persons={persons} filtered={filtered} />
+      {search === "" ? (
+        <div>
+          <div>
+            {persons.map((person) => (
+              <ul key={person.name}>
+                <Person
+                  person={person}
+                  personId={person.id}
+                  deletePerson={() => confirmDelete(person)}
+                />
+              </ul>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div>
+            {filtered.map((person) => (
+              <ul key={person.name}>
+                <li className="person">
+                  {person.name} {person.number}
+                </li>
+              </ul>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

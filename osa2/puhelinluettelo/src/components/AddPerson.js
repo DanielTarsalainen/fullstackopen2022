@@ -5,7 +5,7 @@ const AddPerson = ({
   number,
   onNameChange,
   onNumberChange,
-  addPerson,
+  addOrUpdate,
 }) => {
   return (
     <div>
@@ -27,7 +27,7 @@ const AddPerson = ({
           />
         </div>
         <div>
-          <button onClick={addPerson} type="submit">
+          <button onClick={addOrUpdate} type="submit">
             add
           </button>
         </div>
