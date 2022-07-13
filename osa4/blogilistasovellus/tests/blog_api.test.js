@@ -7,24 +7,7 @@ const Blog = require("../models/blog");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-let token = "";
-
-const loginUser = async () => {
-  const username = "danukka";
-
-  const user = await User.findOne({ username });
-
-  const userForToken = {
-    username: user.username,
-    id: user._id,
-  };
-
-  token = jwt.sign(userForToken, process.env.SECRET);
-
-  await api
-    .post("/api/login")
-    .send({ token, username: user.username, name: user.name });
-};
+const token = { value: "" };
 
 beforeEach(async () => {
   await Blog.deleteMany({});
@@ -44,11 +27,16 @@ beforeEach(async () => {
   await Blog.insertMany(helper.initialBlogs);
   await User.insertMany(helper.initialUsers);
 
-  // login user
-  await loginUser();
+  token.value = await helper.testToken();
 });
 
 describe("returned data is valid", () => {
+  test("object identifier must be named 'id'", async () => {
+    let databaseData = await helper.blogsInDb();
+
+    databaseData.map((object) => expect(object.id).toBeDefined());
+  });
+
   test("blogs are returned as json", async () => {
     await api
       .get("/api/blogs")
@@ -67,12 +55,6 @@ describe("returned data is valid", () => {
 
     expect(contents).toContainEqual("How to win");
   });
-
-  test("object identifier must be named 'id'", async () => {
-    let databaseData = await helper.blogsInDb();
-
-    databaseData.map((object) => expect(object.id).toBeDefined());
-  });
 });
 
 describe("addition of a new blog", () => {
@@ -87,7 +69,7 @@ describe("addition of a new blog", () => {
 
     await api
       .post("/api/blogs")
-      .set("Authorization", "bearer " + token)
+      .set("Authorization", "bearer " + token.value)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -114,7 +96,7 @@ describe("addition of a new blog", () => {
 
     await api
       .post("/api/blogs")
-      .set("Authorization", "bearer " + token)
+      .set("Authorization", "bearer " + token.value)
       .send(newBlog)
       .expect(201)
       .expect("Content-Type", /application\/json/);
@@ -132,14 +114,35 @@ describe("addition of a new blog", () => {
       author: "Jack Jackson",
       url: "",
       likes: 102,
+      user: "62cebc2c036763d56a69e310",
     };
     const newObj = new Blog(newBlog);
 
     await api
       .post("/api/blogs")
-      .set("Authorization", "bearer " + token)
+      .set("Authorization", "bearer " + token.value)
       .send(newObj)
       .expect(400);
+  });
+
+  test("If token isn't included, a blog wont be added and 401 Unauthorized is returned", async () => {
+    const newBlog = {
+      title: "How to always win part 4",
+      author: "Jack Jackson",
+      url: "http://123.com",
+      likes: 50,
+      user: "62cebc2c036763d56a69e310",
+    };
+
+    const newObj = new Blog(newBlog);
+
+    await api.post("/api/blogs").send(newObj).expect(401);
+
+    const blogsAtEnd = await helper.blogsInDb();
+
+    const titles = blogsAtEnd.map((blog) => blog.title);
+
+    expect(titles).not.toContainEqual("How to always win part 4");
   });
 });
 
@@ -151,7 +154,7 @@ describe("deletion of a note", () => {
 
     await api
       .delete(`/api/blogs/${selectedBlog.id}`)
-      .set("Authorization", "bearer " + token)
+      .set("Authorization", "bearer " + token.value)
       .expect(204);
 
     const blogsInTheEnd = await helper.blogsInDb();
@@ -179,7 +182,7 @@ describe("update of a note", () => {
 
     await api
       .put(`/api/blogs/${selectedBlog.id}`)
-      .set("Authorization", "bearer " + token)
+      .set("Authorization", "bearer " + token.value)
       .send(selectedBlog)
       .expect(204);
 

@@ -51,9 +51,25 @@ const usersInDb = async () => {
   return users.map((user) => user.toJSON());
 };
 
+const testToken = async () => {
+  const username = "danukka";
+
+  const user = await User.findOne({ username });
+
+  const userForToken = {
+    username: user.username,
+    id: user._id,
+  };
+
+  token = jwt.sign(userForToken, process.env.SECRET);
+
+  return token;
+};
+
 module.exports = {
   initialBlogs,
   initialUsers,
   blogsInDb,
   usersInDb,
+  testToken,
 };

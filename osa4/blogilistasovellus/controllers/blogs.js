@@ -2,7 +2,6 @@ const blogsRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
 
 const Blog = require("../models/blog");
-const User = require("../models/user");
 const { userExtractor } = require("../utils/middleware");
 
 blogsRouter.get("/", async (request, response) => {
@@ -39,9 +38,9 @@ blogsRouter.delete("/:id", userExtractor, async (request, response) => {
     name: 1,
   });
 
-  const blogId = blogWithUser.user._id.toString();
+  const blogUserId = blogWithUser.user._id.toString();
 
-  if (blogId === user_id) {
+  if (blogUserId === user_id) {
     await Blog.findByIdAndRemove(blogWithUser._id);
     return response.status(204).end();
   } else {
