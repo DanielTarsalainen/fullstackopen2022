@@ -4,6 +4,10 @@
   font-size: 15px;
 }
 
+h2 {
+  color: darkblue
+}
+
 .error {
   color: green;
   background: lightgrey;

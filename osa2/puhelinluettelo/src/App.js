@@ -24,40 +24,57 @@ const App = () => {
 
   const handleNameChange = (event) => {
     event.preventDefault();
-    setNewName(event.target.value);
+    const name = event.target.value;
+
+    setNewName(name);
   };
 
   const handleNumberChange = (event) => {
     event.preventDefault();
-    setNewNumber(event.target.value);
+    const number = event.target.value;
+
+    setNewNumber(number);
   };
 
   const handleFilterChange = (event) => {
     event.preventDefault();
-    setSearch(event.target.value);
+    const typedSearch = event.target.value;
 
-    if (event.target.value !== "") {
-      filterNumbersByName(event.target.value);
+    setSearch(typedSearch);
+
+    if (typedSearch !== "") {
+      filterNumbersByName(typedSearch);
     }
   };
 
   const filterNumbersByName = (val) => {
     const filteredPersons = persons.filter((person) =>
-      person.name.toLowerCase().includes(val.toLowerCase())
+      person.name.toLowerCase().includes(val.toLowerCase().trim())
     );
     setFiltered(filteredPersons);
   };
 
   const addPerson = (newObject) => {
-    personService.create(newObject).then((newData) => {
-      setPersons(persons.concat(newData));
+    personService
+      .create(newObject)
+      .then((newData) => {
+        setPersons(persons.concat(newData));
 
-      setNotificationMessage(`Added ${newObject.name}!`);
+        setNotificationMessage(`Added ${newObject.name}!`);
 
-      setTimeout(() => {
-        setNotificationMessage(null);
-      }, 3000);
-    });
+        setTimeout(() => {
+          setNotificationMessage(null);
+        }, 3000);
+      })
+      .catch((error) => {
+        setNotificationColor({ color: "red" });
+        setNotificationMessage(error.response.data.error);
+
+        setTimeout(() => {
+          setNotificationMessage(null);
+          setNotificationColor({ color: "green" });
+        }, 3000);
+      });
   };
 
   const updatePerson = (newObject) => {
@@ -80,15 +97,11 @@ const App = () => {
       })
       .catch((error) => {
         setNotificationColor({ color: "red" });
-
-        setNotificationMessage(
-          `Information of ${newObject.name} was already been removed from server`
-        );
+        setNotificationMessage(error.response.data.error);
 
         setTimeout(() => {
           setNotificationMessage(null);
           setNotificationColor({ color: "green" });
-          filterPerson(newObject);
         }, 3000);
       });
   };
@@ -149,7 +162,7 @@ const App = () => {
 
   const AddOrUpdatePerson = (event) => {
     event.preventDefault();
-    const newObject = { name: newName, number: newNumber };
+    const newObject = { name: newName.trim(), number: newNumber.trim() };
 
     if (persons.find((element) => element.name === newName)) {
       confirmUpdate(newObject, newName);
