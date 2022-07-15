@@ -51,16 +51,31 @@ blogsRouter.delete("/:id", userExtractor, async (request, response) => {
   }
 });
 
-blogsRouter.put("/:id", async (request, response) => {
-  const { title, author, url, likes } = request.body;
+blogsRouter.put("/:id", userExtractor, async (request, response) => {
+  const user_id = request.user._id.toString();
 
-  await Blog.findByIdAndUpdate(
-    request.params.id,
-    { title, author, url, likes },
-    { new: true, runValidators: true, context: "query" }
-  );
+  const blogWithUser = await Blog.findById(request.params.id).populate("user", {
+    username: 1,
+    name: 1,
+  });
 
-  response.status(204).end();
+  const blogUserId = blogWithUser.user._id.toString();
+
+  if (blogUserId === user_id) {
+    const { title, author, url, likes } = request.body;
+    await Blog.findByIdAndUpdate(
+      request.params.id,
+      { title, author, url, likes },
+      { new: true, runValidators: true, context: "query" }
+    );
+
+    response.status(204).end();
+  } else {
+    return response.status(400).json({
+      error:
+        "Cannot execute update. Blog creator does not match with the token owner!",
+    });
+  }
 });
 
 module.exports = blogsRouter;
