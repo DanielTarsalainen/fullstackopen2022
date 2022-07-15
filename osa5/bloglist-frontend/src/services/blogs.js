@@ -22,14 +22,29 @@ const createBlog = async (newObject) => {
 };
 
 const updateBlog = async (id, newObject) => {
-  const requestUpdate = axios.put(`${baseUrl}/${id}`, newObject);
-  return requestUpdate.then((response) => response.data);
+  const updateConfig = {
+    headers: { Authorization: token },
+  };
+
+  const request = axios.put(`${baseUrl}/${id}`, newObject, updateConfig);
+
+  return request.then((response) => response.data);
+};
+
+const deleteBlog = async (id) => {
+  const deleteConfig = {
+    headers: { Authorization: token },
+  };
+
+  const requestDelete = axios.delete(`${baseUrl}/${id}`, deleteConfig);
+  return requestDelete.then((response) => response.data);
 };
 
 const blogService = {
   getAll,
   createBlog,
   updateBlog,
+  deleteBlog,
   setToken,
 };
 
