@@ -38,6 +38,8 @@ blogsRouter.delete("/:id", userExtractor, async (request, response) => {
     name: 1,
   });
 
+  console.log(blogWithUser._id);
+
   const blogUserId = blogWithUser.user._id.toString();
 
   if (blogUserId === user_id) {
@@ -69,7 +71,7 @@ blogsRouter.put("/:id", userExtractor, async (request, response) => {
       { new: true, runValidators: true, context: "query" }
     );
 
-    response.status(204).end();
+    return response.status(204).end();
   } else {
     return response.status(400).json({
       error:
