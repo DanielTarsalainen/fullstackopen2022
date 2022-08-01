@@ -1,10 +1,10 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Impha2tpbGEiLCJpZCI6IjYyY2VlYTlmNWNjN2EyN2E4ODgwYWZjMCIsImlhdCI6MTY1Nzg5NjU5OSwiZXhwIjoxNjU3OTAwMTk5fQ.2EAiluDpcVijuffmk9qko8iep43dF64qf6sbdUJ-gFg
+Authorization: bearer
 
 {
       "title": "How to always win at work life pt5",
       "author": "Jakki Heikkinen",
       "url": "http://123.com",
-      "likes": 36
+      "likes": 100
 }
