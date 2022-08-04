@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Notification = ({ notificationMessage, notificationColor }) => {
   if (notificationMessage === null) {
@@ -10,6 +11,10 @@ const Notification = ({ notificationMessage, notificationColor }) => {
       {notificationMessage}
     </div>
   );
+};
+
+Notification.propTypes = {
+  notificationColor: PropTypes.object.isRequired,
 };
 
 export default Notification;

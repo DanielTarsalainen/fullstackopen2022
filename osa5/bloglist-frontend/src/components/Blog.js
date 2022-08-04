@@ -21,16 +21,23 @@ const Blog = ({ blog, showAllInfo, toggleInfo, onUpdate, onDelete }) => {
       }}
     >
       {togglableBlog.showInfo && (
-        <div>
-          {blog.title} {blog.author}
-          <button onClick={() => toggleChange(blog)}>hide</button>
-          <br></br>
-          {blog.url}
-          <br></br>
-          {blog.likes} <button onClick={() => onUpdate(blog.id)}>like</button>
-          <br></br>
-          {blog.user.name}
-          <br></br>
+        <div className="blogContainer">
+          <div className="fullBlogData">
+            <p className="blogData">
+              {blog.title} {blog.author} &nbsp;
+              <button className="blogButton" onClick={() => toggleChange(blog)}>
+                hide
+              </button>
+            </p>
+            <p className="blogData"> {blog.url}</p>
+            <p className="blogData">
+              {blog.likes} &nbsp;
+              <button className="blogButton" onClick={() => onUpdate(blog.id)}>
+                like
+              </button>
+            </p>
+            <p className="blogData"> {blog.user.name}</p>
+          </div>
           <div>
             <button className="removeButton" onClick={() => onDelete(blog.id)}>
               remove
@@ -39,7 +46,7 @@ const Blog = ({ blog, showAllInfo, toggleInfo, onUpdate, onDelete }) => {
         </div>
       )}
       {!togglableBlog.showInfo && (
-        <li>
+        <li className="limitedBlog">
           {blog.title} {blog.author} &nbsp;
           <button onClick={() => toggleChange(blog)}>view</button>
         </li>

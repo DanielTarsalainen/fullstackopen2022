@@ -15,3 +15,8 @@ button {
 .removeButton {
   background-color: rgb(2, 165, 219);
 }
+
+p {
+  line-height: 1pt;
+  margin-top: 0;
+}
